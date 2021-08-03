@@ -1,0 +1,104 @@
+version: '3'
+
+services:
+  postgresql:
+    image: docker.io/bitnami/postgresql:12
+    volumes:
+      - 'postgresql_data:/bitnami/postgresql'
+      - ./docker-scripts/postgres:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRESQL_DATABASE=${AIRFLOW__POSTGRESQL_DATABASE}
+      - POSTGRESQL_USERNAME=${POSTGRESQL_USERNAME}
+      - POSTGRESQL_PASSWORD=${POSTGRESQL_PASSWORD}
+      - ALLOW_EMPTY_PASSWORD=${POSTGRESQL_ALLOW_EMPTY_PASSWORD}
+      - POSTGRES_MULTIPLE_DATABASES=${DJANGO__DATABASE_NAME}
+      # ^ refer to ./docker-scripts/postgres
+    ports:
+      - '5432:5432'
+  
+  django-webserver:
+    build: 
+      context: ./src/django/
+    environment:
+      - SECRET_KEY=${DJANGO__SECRET_KEY}
+      - DATABASE_ENGINE=${DJANGO__DATABASE_ENGINE}
+      - DATABASE_NAME=${DJANGO__DATABASE_NAME}
+      - DATABASE_USER=${DJANGO__DATABASE_USER}
+      - DATABASE_PASSWORD=${DJANGO__DATABASE_PASSWORD}
+      - DATABASE_HOST=${DJANGO__DATABASE_HOST}
+      - DATABASE_PORT=${DJANGO__DATABASE_PORT}
+      - DEBUG=${DJANGO__DEBUG}
+    volumes:
+      - ./src/django/apps/github_vax/migrations:/code/apps/github_vax/migrations
+      - ./src/django/apps/core/migrations:/code/apps/core/migrations
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+   
+  redis:
+    image: docker.io/bitnami/redis:6.0
+    volumes:
+      - 'redis_data:/bitnami'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+
+  airflow-scheduler:
+    # TODO: to be reverted to use proper registry/distro on T39132
+    # image: docker.io/bitnami/airflow-scheduler:2
+    image: docker.io/bitnami/airflow-scheduler:1.10.15
+    environment:
+      - AIRFLOW_DATABASE_NAME=${AIRFLOW__DATABASE_NAME}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
+      - AIRFLOW_FERNET_KEY=${AIRFLOW__FERNET_KEY}
+      - AIRFLOW_EXECUTOR=${AIRFLOW__EXECUTOR}
+      - AIRFLOW_WEBSERVER_HOST=${AIRFLOW__WEBSERVER_HOST}
+      - AIRFLOW_LOAD_EXAMPLES=${AIRFLOW__LOAD_EXAMPLES}
+    volumes:
+      - airflow_scheduler_data:/bitnami
+      - ./src/airflow/dags:/opt/bitnami/airflow/dags
+      - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+  airflow-worker:
+    # TODO: to be reverted to use proper registry/distro on T39132
+    # image: docker.io/bitnami/airflow-worker:2
+    image: docker.io/bitnami/airflow-worker:1.10.15
+    environment:
+      - AIRFLOW_DATABASE_NAME=${AIRFLOW__DATABASE_NAME}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
+      - AIRFLOW_FERNET_KEY=${AIRFLOW__FERNET_KEY}
+      - AIRFLOW_EXECUTOR=${AIRFLOW__EXECUTOR}
+      - AIRFLOW_WEBSERVER_HOST=${AIRFLOW__WEBSERVER_HOST}
+      - AIRFLOW_LOAD_EXAMPLES=${AIRFLOW__LOAD_EXAMPLES}
+    volumes:
+      - airflow_worker_data:/bitnami
+      - ./src/airflow/dags:/opt/bitnami/airflow/dags
+      - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+  airflow:
+    image: docker.io/bitnami/airflow:1.10.15
+    environment:
+      - AIRFLOW_DATABASE_NAME=${AIRFLOW__DATABASE_NAME}
+      - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
+      - AIRFLOW_DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
+      - AIRFLOW_FERNET_KEY=${AIRFLOW__FERNET_KEY}
+      - AIRFLOW_EXECUTOR=${AIRFLOW__EXECUTOR}
+      - AIRFLOW_WEBSERVER_HOST=${AIRFLOW__WEBSERVER_HOST}
+      - AIRFLOW_LOAD_EXAMPLES=${AIRFLOW__LOAD_EXAMPLES}
+    ports:
+      - '8080:8080'
+    volumes:
+      - airflow_data:/bitnami
+      - ./src/airflow/dags:/opt/bitnami/airflow/dags
+      - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+volumes:
+  airflow_scheduler_data:
+    driver: local
+  airflow_worker_data:
+    driver: local
+  airflow_data:
+    driver: local
+  postgresql_data:
+    driver: local
+  redis_data:
+    driver: local
