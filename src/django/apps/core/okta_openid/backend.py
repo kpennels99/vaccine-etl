@@ -26,6 +26,7 @@ class OktaAuthCodeBackend(ModelBackend):
         if self.user_can_authenticate(user):
             return user
 
+
 class OktaCredentialsBackend(ModelBackend):
     """Authentication using Okta's OIDC authorization servers.
 
