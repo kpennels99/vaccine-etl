@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+from django.urls import reverse_lazy
 
 from .environment import env
 
@@ -52,6 +53,21 @@ INSTALLED_APPS = [
     'apps.github_vax'
 ]
 
+INSIGHTS_AUTH_BACKENDS = env.list('INSIGHTS_AUTH_BACKENDS', default=list())
+auth_backends = [backend if backend.startswith('django.') else f'apps.core.{backend}'
+                 for backend in INSIGHTS_AUTH_BACKENDS]
+if auth_backends:
+    USE_OKTA_AUTH = any(map(lambda backend: 'OktaBackend' in backend, auth_backends))
+else:
+    USE_OKTA_AUTH = False
+    auth_backends = ['django.contrib.auth.backends.ModelBackend', ]
+
+AUTHENTICATION_BACKENDS = tuple(auth_backends)
+
+INSIGHTS_AUTH_MIDDLEWARE = env.list('INSIGHTS_AUTH_MIDDLEWARE', default=list())
+auth_middleware = [middleware if middleware.startswith('django.')
+                   else f'apps.core.{middleware}'
+                   for middleware in INSIGHTS_AUTH_MIDDLEWARE]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -62,6 +78,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
+MIDDLEWARE.extend(auth_middleware)
+
+
+# LOGIN_URL = reverse_lazy('okta_login') \
+#     if USE_OKTA_AUTH else reverse_lazy('login')
+# LOGOUT_REDIRECT_URL = reverse_lazy('okta_login') \
+#     if USE_OKTA_AUTH else reverse_lazy('login')
 
 ROOT_URLCONF = 'api_config.urls'
 

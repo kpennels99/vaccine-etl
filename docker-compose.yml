@@ -34,7 +34,7 @@ services:
     ports:
       - '8000:8000'
     depends_on:
-      - postgres
+      - postgresql
    
   redis:
     image: docker.io/bitnami/redis:6.0
@@ -59,6 +59,7 @@ services:
       - airflow_scheduler_data:/bitnami
       - ./src/airflow/dags:/opt/bitnami/airflow/dags
       - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+
   airflow-worker:
     # TODO: to be reverted to use proper registry/distro on T39132
     # image: docker.io/bitnami/airflow-worker:2
@@ -75,6 +76,7 @@ services:
       - airflow_worker_data:/bitnami
       - ./src/airflow/dags:/opt/bitnami/airflow/dags
       - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+
   airflow:
     image: docker.io/bitnami/airflow:1.10.15
     environment:

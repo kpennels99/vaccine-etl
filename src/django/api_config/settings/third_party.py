@@ -39,3 +39,15 @@ CORS_ALLOW_HEADERS = (
     'x-requested-with',
     'cache-control',
 )
+
+OKTA_AUTH = {
+    'ORG_URL': env.str('OKTA_ORG_URL', 'https://dev-46582267.okta.com/'),
+    'ISSUER': env.str('OKTA_ISSUER', 'https://dev-46582267.okta.com/oauth2/default'),
+    'CLIENT_ID': env.str('OKTA_CLIENT_ID', None),
+    'CLIENT_SECRET': env.str('OKTA_CLIENT_SECRET', None),
+    'REDIRECT_URI': env.str('OKTA_REDIRECT_URI',
+                            'http://127.0.0.1:8000/accounts/oauth2/callback'),
+    'PUBLIC_URLS': (r'/favicon.ico',r'/okta_login'),
+    'PUBLIC_NAMED_URLS': ('health_check', 'login'),
+    'CLAIMS_HANDLER': 'insights.okta_authorization.claim_handler'
+}
