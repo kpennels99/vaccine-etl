@@ -3,9 +3,11 @@ name: Analyze Django
 on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
+
     paths: 
       - 'src/django/**'
       - 'test/django/**'
+      - '.github/workflows/analyse_pr_django.yaml'
 
 jobs:
   analyse:
@@ -21,7 +23,7 @@ jobs:
         ports: [ "5432:5432" ]
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
     steps:
-      - name: 'Checkout repository on branch: ${{ github.REF }}'
+      - name: 'Checkout: ${{ github.REF }}'
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
@@ -30,14 +32,16 @@ jobs:
         uses: actions/setup-python@v1
         with:
           python-version: 3.8
+      - name: Cache python dependencies
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('./src/django/requirements.txt') }}
       - name: Install dependencies
         working-directory: ./src/django/
         run: |
           pip install --upgrade pip setuptools
-          pip install -r requirements.txt 
-      - name: Set up Build and Test Config
-        working-directory: ./src/django/
-        run: cp .env.template .env
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt 
       - name: Lint with Pre-Commit on all files
         working-directory: ./src/django/
         run: pre-commit run -a -v
@@ -48,6 +52,6 @@ jobs:
           DJANGO_DB_PASSWORD: postgres
           DJANGO_DB_HOST: localhost
           DJANGO_DB_PORT: 5432
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          SECRET_KEY: 'github_key'
         run: |
           coverage run -m pytest test/ && coverage xml -o coverage.xml && coverage report -m
