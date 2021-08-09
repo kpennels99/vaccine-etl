@@ -33,7 +33,7 @@ jobs:
         with:
           python-version: 3.8
       - name: Cache python dependencies
-      - uses: actions/cache@v2
+        uses: actions/cache@v2
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ env.pythonLocation }}-${{ hashFiles('./src/django/requirements.txt') }}
