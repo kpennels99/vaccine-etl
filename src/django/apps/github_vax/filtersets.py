@@ -1,3 +1,4 @@
+"""View filterset definitions."""
 import rest_framework_filters as filters
 
 from . import models

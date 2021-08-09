@@ -1,13 +1,13 @@
 """Python callable definitions."""
+import io
 import logging
-import pandas as pd
 from datetime import datetime
-import requests
 from pathlib import Path
 
+import pandas as pd
+import psycopg2
+import requests
 from sqlalchemy import create_engine
-import psycopg2 
-import io
 
 # todo: make env vars
 
@@ -22,9 +22,9 @@ def extract_data(**context):
 
     p = Path(RAW_DATA_DIR)
     p.mkdir(exist_ok=True)
-    dump_file = (p / f"{int(datetime.now().timestamp())}.csv")
+    dump_file = (p / f'{int(datetime.now().timestamp())}.csv')
     with dump_file.open('w') as fp:
-        # prevent entire contents being loaded into memory 
+        # prevent entire contents being loaded into memory
         for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
             fp.write(chunk)
 
@@ -48,5 +48,5 @@ def load_data(**context):
         df.to_csv(output, sep='\t', header=False)
         output.seek(0)
         contents = output.getvalue()
-        cur.copy_from(output, table_name, null="") # null values become ''
+        cur.copy_from(output, table_name, null='') # null values become ''
         conn.commit()

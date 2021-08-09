@@ -2,7 +2,6 @@
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
-
 from utilities import callables
 
 
@@ -40,5 +39,5 @@ with DAG(
         dag=dag
     )
 
-   
+
     extract_data >> load_github_data

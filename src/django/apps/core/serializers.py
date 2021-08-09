@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import make_password
-from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
+from rest_framework import serializers
 
 from . import models
 
@@ -18,15 +18,15 @@ class UserSerializer(serializers.ModelSerializer):
     def validate_password(self, value: str) -> str:
         """Ensure password field is not empty."""
         if value == '':
-            raise serializers.ValidationError("Password cannot be empty.")
-        
+            raise serializers.ValidationError('Password cannot be empty.')
+
         validate_password(value)
         return make_password(value)
 
     def validate_email(self, value: str) -> str:
         """Ensure email field is not empty."""
         if value == '':
-            raise serializers.ValidationError("Email cannot be empty.")
+            raise serializers.ValidationError('Email cannot be empty.')
         return value
 
 class OktaLoginSerializer(serializers.Serializer):

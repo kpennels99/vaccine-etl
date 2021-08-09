@@ -1,3 +1,4 @@
+"""Github Vax data model definitions."""
 from django.db import models
 
 

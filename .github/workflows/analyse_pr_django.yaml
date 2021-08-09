@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, edited, reopened, synchronize]
 
-    paths: 
+    paths:
       - 'src/django/**'
       - 'test/django/**'
       - '.github/workflows/analyse_pr_django.yaml'
@@ -41,7 +41,7 @@ jobs:
         working-directory: ./src/django/
         run: |
           pip install --upgrade pip setuptools
-          pip install --upgrade --upgrade-strategy eager -r requirements.txt 
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt
       - name: Lint with Pre-Commit on all files
         working-directory: ./src/django/
         run: pre-commit run -a -v

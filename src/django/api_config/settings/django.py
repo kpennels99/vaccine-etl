@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
 from pathlib import Path
+
 from django.urls import reverse_lazy
 
 from .environment import env
@@ -29,7 +30,7 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['127.0.0.1'] # TODO: add additional hosts via env 
+ALLOWED_HOSTS = ['127.0.0.1'] # TODO: add additional hosts via env
 
 
 # Application definition

@@ -48,7 +48,7 @@ class TokenValidator:
             self._discovery_document = DiscoveryDocument(self.config.issuer)
 
         return self._discovery_document
-    
+
     def get_owner_password_data(self, username, password):
         return {'grant_type': 'password', 'scope': self.config.scopes,
                 'username': username, 'password': password}
@@ -62,10 +62,10 @@ class TokenValidator:
                 'scope': self.config.scopes, 'redirect_uri': self.config.redirect_uri}
 
     def request_tokens(self, grant_type='credentials', *args, **kwargs):
-        grant_type_data_function = f"get_{grant_type}_data"
+        grant_type_data_function = f'get_{grant_type}_data'
         if not hasattr(self, grant_type_data_function):
-            raise Exception("Not configured to request tokens using the grant_type" 
-                            f"{grant_type}")
+            raise Exception('Not configured to request tokens using the grant_type'
+                            f'{grant_type}')
 
         data = getattr(self, grant_type_data_function)(*args, **kwargs)
         token_result = self.call_token_endpoint(self.token_endpoint, data)

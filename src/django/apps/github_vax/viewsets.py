@@ -1,10 +1,11 @@
-# Create your viewsets here.
+"""Viewset definitions."""
 from rest_framework import viewsets
-from . import serializers
-from . import models
-from . import filtersets
 
-class GithubVaxDataViewSet(viewsets.ModelViewSet):
+from . import filtersets
+from . import models
+from . import serializers
+
+class GithubVaxDataViewSet(viewsets.ReadOnlyModelViewSet):
     """PetFeature CRUD operations."""
 
     queryset = models.GithubVaxData.objects.all().order_by('-date')

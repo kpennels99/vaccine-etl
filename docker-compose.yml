@@ -15,9 +15,9 @@ services:
       # ^ refer to ./docker-scripts/postgres
     ports:
       - '5432:5432'
-  
+
   django-webserver:
-    build: 
+    build:
       context: ./src/django/
     environment:
       - SECRET_KEY=${DJANGO__SECRET_KEY}
@@ -35,7 +35,7 @@ services:
       - '8000:8000'
     depends_on:
       - postgresql
-   
+
   redis:
     image: docker.io/bitnami/redis:6.0
     volumes:

@@ -1,8 +1,7 @@
 """Okta OpenID Authentication Backend."""
-from django.contrib.auth.backends import ModelBackend
-
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
+from django.contrib.auth.backends import ModelBackend
 
 
 class OktaAuthCodeBackend(ModelBackend):

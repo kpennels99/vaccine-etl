@@ -1,6 +1,8 @@
 """Okta OpenID Authorization Middleware."""
 import logging
 
+from apps.core.okta_openid.conf import Config
+from apps.core.okta_openid.tokens import TokenValidator
 from django.http import HttpRequest
 from django.http import HttpResponseRedirect
 from django.http.response import JsonResponse
@@ -8,9 +10,6 @@ from django.urls import reverse
 from okta_oauth2.exceptions import InvalidToken
 from okta_oauth2.exceptions import MissingAuthTokens
 from okta_oauth2.exceptions import TokenExpired
-
-from apps.core.okta_openid.conf import Config
-from apps.core.okta_openid.tokens import TokenValidator
 
 logger = logging.getLogger(__name__)
 
