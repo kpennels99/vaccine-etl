@@ -61,9 +61,9 @@ class OktaMiddleware:
 
     def __call__(self, request):
         """Extract Okta JWT and remotely validate it against the apps auth server."""
-        print(f'entering okta middleware for {request.path_info}')
+        logger.debug(f'entering okta middleware for {request.path_info}')
         if self.is_public_url(request.path_info):
-            print(f'public url')
+            logger.debug('Public url encountered. Skipping token validation')
             return self.get_response(request)
 
         error_response = validate_or_handle_error(self.config, request)

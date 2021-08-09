@@ -1,3 +1,4 @@
+"""Core view definitions."""
 from apps.core import serializers
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
@@ -7,17 +8,13 @@ from okta_oauth2.exceptions import TokenRequestFailed
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 
-class OktaLoginView(GenericAPIView):
-    """
-    View to list all users in the system.
 
-    * Requires token authentication.
-    * Only admin users are able to access this view.
-    """
+class OktaLoginView(GenericAPIView):
+    """Authenticate user details and generate access and refresh token on success."""
+
     authentication_classes = []
     permission_classes = []
     serializer_class = serializers.OktaLoginSerializer
-
 
     def post(self, request):
         """Authenticate user login."""

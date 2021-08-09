@@ -1,4 +1,4 @@
-# Create your viewsets here.
+"""Core viewset definitions."""
 from rest_framework import viewsets
 
 from . import models

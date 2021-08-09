@@ -4,9 +4,12 @@ Execution environment related settings.
 The environment variable reader (env)  is instantiated in this module and then
 imported into the other settings definition files.
 """
+import logging
 import os
 
 import environ
+
+logger = logging.getLogger(__name__)
 
 
 env = environ.Env(DEBUG=(bool, False))
@@ -18,4 +21,4 @@ env_file = SITE_ROOT('.env')
 if os.path.exists(env_file):
     environ.Env.read_env(env_file=env_file)
 else:
-    print('No env file found')
+    logger.warning('No env file found')

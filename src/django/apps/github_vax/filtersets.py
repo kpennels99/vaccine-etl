@@ -1,7 +1,7 @@
 """View filterset definitions."""
 import rest_framework_filters as filters
+from apps.github_vax import models
 
-from . import models
 
 class GithubVaxDataFilter(filters.FilterSet):
     """Custom PetFollowViewset filters."""

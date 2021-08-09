@@ -47,7 +47,7 @@ OKTA_AUTH = {
     'CLIENT_SECRET': env.str('OKTA_CLIENT_SECRET', None),
     'REDIRECT_URI': env.str('OKTA_REDIRECT_URI',
                             'http://127.0.0.1:8000/accounts/oauth2/callback'),
-    'PUBLIC_URLS': (r'/favicon.ico',r'/okta_login'),
+    'PUBLIC_URLS': (r'/favicon.ico', r'/okta_login'),
     'PUBLIC_NAMED_URLS': ('health_check', 'login'),
     'CLAIMS_HANDLER': 'insights.okta_authorization.claim_handler'
 }

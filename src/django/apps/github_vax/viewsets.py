@@ -1,9 +1,9 @@
 """Viewset definitions."""
+from apps.github_vax import filtersets
+from apps.github_vax import models
+from apps.github_vax import serializers
 from rest_framework import viewsets
 
-from . import filtersets
-from . import models
-from . import serializers
 
 class GithubVaxDataViewSet(viewsets.ReadOnlyModelViewSet):
     """PetFeature CRUD operations."""

@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 import os
 from pathlib import Path
 
-from django.urls import reverse_lazy
-
 from .environment import env
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -30,7 +28,7 @@ SECRET_KEY = env.str('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DEBUG', default=False)
 
-ALLOWED_HOSTS = ['127.0.0.1'] # TODO: add additional hosts via env
+ALLOWED_HOSTS = ['127.0.0.1']  # TODO: add additional hosts via env
 
 
 # Application definition
@@ -81,12 +79,6 @@ MIDDLEWARE = [
 ]
 MIDDLEWARE.extend(auth_middleware)
 
-
-# LOGIN_URL = reverse_lazy('okta_login') \
-#     if USE_OKTA_AUTH else reverse_lazy('login')
-# LOGOUT_REDIRECT_URL = reverse_lazy('okta_login') \
-#     if USE_OKTA_AUTH else reverse_lazy('login')
-
 ROOT_URLCONF = 'api_config.urls'
 
 TEMPLATES = [
@@ -113,7 +105,6 @@ WSGI_APPLICATION = 'api_config.wsgi.application'
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.postgresql',
         'ENGINE': env.str('DATABASE_ENGINE'),
         'NAME': env.str('DATABASE_NAME'),
         'USER': env.str('DATABASE_USER'),

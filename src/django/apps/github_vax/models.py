@@ -3,6 +3,8 @@ from django.db import models
 
 
 class GithubVaxData(models.Model):
+    """Github Vaccination data model."""
+
     location = models.TextField(max_length=500, blank=True, null=True)
     iso_code = models.TextField(max_length=10, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
@@ -17,5 +19,7 @@ class GithubVaxData(models.Model):
     daily_vaccinations_per_million = models.FloatField(blank=True, null=True)
 
     class Meta:
+        """Model meta data attribute overrides."""
+
         managed = False
         db_table = 'github_vax_data'

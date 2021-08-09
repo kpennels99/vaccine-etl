@@ -1,11 +1,9 @@
 """Okta OpenID Oauth2 JWT validator."""
 import base64
 import logging
-from importlib import import_module
 
 import jwt
 import requests
-from django.conf import settings
 from django.contrib.auth import get_user_model
 from okta_oauth2.exceptions import InvalidToken
 from okta_oauth2.exceptions import TokenExpired
@@ -50,18 +48,22 @@ class TokenValidator:
         return self._discovery_document
 
     def get_owner_password_data(self, username, password):
+        """Return data required to make resource owner password token request."""
         return {'grant_type': 'password', 'scope': self.config.scopes,
                 'username': username, 'password': password}
 
     def get_auth_code_data(self, code):
+        """Return data required to make authorization code token request."""
         return {'grant_type': 'authorization_code', 'code': str(code),
                 'scope': self.config.scopes}
 
     def get_refresh_data(self, refresh_token):
+        """Return data required to make refresh access token request."""
         return {'grant_type': 'refresh_token', 'refresh_token': str(refresh_token),
                 'scope': self.config.scopes, 'redirect_uri': self.config.redirect_uri}
 
-    def request_tokens(self, grant_type='credentials', *args, **kwargs):
+    def request_tokens(self, grant_type='owner_password', *args, **kwargs):
+        """Call the token endpoint using the payload for the respective grant type."""
         grant_type_data_function = f'get_{grant_type}_data'
         if not hasattr(self, grant_type_data_function):
             raise Exception('Not configured to request tokens using the grant_type'
@@ -118,8 +120,8 @@ class TokenValidator:
         return user, tokens
 
     def handle_claims(self, claims, user):
-        """Call configured claims_handler module to modify user based on the claims."""
-        # raise NotImplementedError()
+        """Modify user attributes based on the received claims."""
+        # pydantic use case.
         pass
 
     def validate_access_token(self, token):

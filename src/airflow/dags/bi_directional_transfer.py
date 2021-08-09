@@ -39,5 +39,4 @@ with DAG(
         dag=dag
     )
 
-
     extract_data >> load_github_data
