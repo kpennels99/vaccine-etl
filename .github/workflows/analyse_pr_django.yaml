@@ -43,14 +43,14 @@ jobs:
           pip install --upgrade pip setuptools
           pip install --upgrade --upgrade-strategy eager -r requirements.txt
       - name: Lint with Pre-Commit on all Django related files
-        run: git ls-files -- src/django | xargs pre-commit run -c src/django/.pre-commit-config.yaml --files
+        run: git ls-files -- src/django | xargs pre-commit run -v -c src/django/.pre-commit-config.yaml --files
       - name: Pytest with Coverage and Unit Test Report
-        working-directory: ./src/django/
         env:
           DJANGO_DB_USERNAME: postgres
           DJANGO_DB_PASSWORD: postgres
           DJANGO_DB_HOST: localhost
           DJANGO_DB_PORT: 5432
           SECRET_KEY: 'github_key'
+          PYTHONPATH: src/django
         run: |
-          coverage run -m pytest test/ && coverage xml -o coverage.xml && coverage report -m
+          coverage run -m pytest test/django && coverage report -m --fail-under=85
