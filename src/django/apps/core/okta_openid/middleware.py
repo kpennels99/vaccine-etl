@@ -4,51 +4,30 @@ import logging
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
 from django.http import HttpRequest
-from django.http import HttpResponseRedirect
-from django.http.response import JsonResponse
-from django.urls import reverse
 from okta_oauth2.exceptions import InvalidToken
-from okta_oauth2.exceptions import MissingAuthTokens
 from okta_oauth2.exceptions import TokenExpired
+from rest_framework.exceptions import PermissionDenied
 
 logger = logging.getLogger(__name__)
 
 
 def get_access_token(request: HttpRequest):
     """Extract Okta access token if present in request."""
-    token = request.COOKIES.get('tokens')
-    if not token:
-        raise MissingAuthTokens('Okta access token not present in request.')
+    auth_header = request.META.get('HTTP_AUTHORIZATION').strip()
+    if not auth_header:
+        raise PermissionDenied('Okta access token not present in request.')
 
-    return token
-
-
-def validate_tokens(config: Config, request: HttpRequest):
-    """Ensure Okta access token has not expired by remotely validating it."""
-    access_token = get_access_token(request)
-    try:
-        nonce = request.COOKIES['okta-oauth-nonce']
-    except KeyError:
-        # If we don't have a nonce set on authentication by the client
-        # in the cookie then we can't validate the token, so just raise an invalid token
-        raise InvalidToken('Missing nonce in cookie')
-
-    validator = TokenValidator(config, nonce, request)
-    validator.validate_access_token(access_token)
+    return auth_header.split(' ')[-1]
 
 
 def validate_or_handle_error(config: Config, request: HttpRequest):
-    """Ensure request contains valid Okta tokens else respond with error/redirect."""
+    """Ensure request contains valid Okta tokens else respond with error."""
+    access_token = get_access_token(request)
+    validator = TokenValidator(config, None, request)
     try:
-        validate_tokens(config, request)
-    except MissingAuthTokens:
-        if request.method == 'POST':
-            # Posting shouldn't redirect, it should just say no.
-            return JsonResponse({'error': 'Token has expired'}, status=403)
-
-        return HttpResponseRedirect(reverse('login'))
-    except (TokenExpired, InvalidToken):
-        return HttpResponseRedirect(reverse('login'))
+        validator.validate_access_token(access_token)
+    except (TokenExpired, InvalidToken) as okta_auth_error:
+        raise PermissionDenied(str(okta_auth_error))
 
 
 class OktaMiddleware:
@@ -66,12 +45,13 @@ class OktaMiddleware:
             logger.debug('Public url encountered. Skipping token validation')
             return self.get_response(request)
 
-        error_response = validate_or_handle_error(self.config, request)
-        if error_response:
+        try:
+            validate_or_handle_error(self.config, request)
+        except PermissionDenied as auth_error:
             logger.error(f'{request.path_info}: Failed Okta token validation for user '
                          f"{getattr(request, 'user')}")
 
-            return error_response
+            raise auth_error
 
         return self.get_response(request)
 
