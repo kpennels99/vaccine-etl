@@ -21,5 +21,4 @@ class GithubVaxData(models.Model):
     class Meta:
         """Model meta data attribute overrides."""
 
-        managed = False
         db_table = 'github_vax_data'

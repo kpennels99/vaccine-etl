@@ -2,7 +2,7 @@
 from django.apps import AppConfig
 
 
-class DjangoConfig(AppConfig):
+class GithubConfig(AppConfig):
     """Github Vax data application attribute definitions."""
 
     name = 'apps.github_vax'
