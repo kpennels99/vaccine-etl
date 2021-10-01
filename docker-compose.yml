@@ -18,7 +18,9 @@ services:
 
   django-webserver:
     build:
-      context: ./src/django/
+      context: ./
+      dockerfile: ./src/django/Dockerfile
+    command: /django.sh
     environment:
       - SECRET_KEY=${DJANGO__SECRET_KEY}
       - DATABASE_ENGINE=${DJANGO__DATABASE_ENGINE}
@@ -29,26 +31,48 @@ services:
       - DATABASE_PORT=${DJANGO__DATABASE_PORT}
       - DEBUG=${DJANGO__DEBUG}
     volumes:
-      - ./src/django/apps/github_vax/migrations:/code/apps/github_vax/migrations
-      - ./src/django/apps/core/migrations:/code/apps/core/migrations
+      - ./src/django/:/code
     ports:
       - '8000:8000'
     depends_on:
+      - redis
       - postgresql
 
   redis:
     image: docker.io/bitnami/redis:6.0
     volumes:
       - 'redis_data:/bitnami'
+    ports:
+    - '6379:6379'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
+
+  celery-worker:
+    build:
+      context: ./
+      dockerfile: ./src/django/Dockerfile
+    command: /celery.sh
+    environment:
+      - SECRET_KEY=${DJANGO__SECRET_KEY}
+      - DATABASE_ENGINE=${DJANGO__DATABASE_ENGINE}
+      - DATABASE_NAME=${DJANGO__DATABASE_NAME}
+      - DATABASE_USER=${DJANGO__DATABASE_USER}
+      - DATABASE_PASSWORD=${DJANGO__DATABASE_PASSWORD}
+      - DATABASE_HOST=${DJANGO__DATABASE_HOST}
+      - DATABASE_PORT=${DJANGO__DATABASE_PORT}
+      - DEBUG=${DJANGO__DEBUG}
+    volumes:
+      - ./src/django/:/code
+    depends_on:
+      - redis
+      - postgresql
 
   airflow-scheduler:
     # TODO: to be reverted to use proper registry/distro on T39132
     # image: docker.io/bitnami/airflow-scheduler:2
     image: docker.io/bitnami/airflow-scheduler:1.10.15
     environment:
-      - AIRFLOW_DATABASE_NAME=${AIRFLOW__DATABASE_NAME}
+      - AIRFLOW_DATABASE_NAME=${AIRFLOW__POSTGRESQL_DATABASE}
       - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
       - AIRFLOW_DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
       - AIRFLOW_FERNET_KEY=${AIRFLOW__FERNET_KEY}
@@ -65,7 +89,7 @@ services:
     # image: docker.io/bitnami/airflow-worker:2
     image: docker.io/bitnami/airflow-worker:1.10.15
     environment:
-      - AIRFLOW_DATABASE_NAME=${AIRFLOW__DATABASE_NAME}
+      - AIRFLOW_DATABASE_NAME=${AIRFLOW__POSTGRESQL_DATABASE}
       - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
       - AIRFLOW_DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
       - AIRFLOW_FERNET_KEY=${AIRFLOW__FERNET_KEY}
@@ -80,7 +104,7 @@ services:
   airflow:
     image: docker.io/bitnami/airflow:1.10.15
     environment:
-      - AIRFLOW_DATABASE_NAME=${AIRFLOW__DATABASE_NAME}
+      - AIRFLOW_DATABASE_NAME=${AIRFLOW__POSTGRESQL_DATABASE}
       - AIRFLOW_DATABASE_USERNAME=${POSTGRESQL_USERNAME}
       - AIRFLOW_DATABASE_PASSWORD=${POSTGRESQL_PASSWORD}
       - AIRFLOW_FERNET_KEY=${AIRFLOW__FERNET_KEY}

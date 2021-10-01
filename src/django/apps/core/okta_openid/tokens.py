@@ -88,15 +88,14 @@ class TokenValidator:
         )
 
         response = r.json()
-        if 'error' in response:
-            raise TokenRequestFailed(
-                response['error'], response.get('error_description')
-            )
+        if not 200 <= r.status_code <= 299:
+            raise TokenRequestFailed(response.get('error') or response.get('errorCode'))
 
         return response
 
     def handle_token_result(self, token_result):
         """Get or create user and extract the required Okta token related values."""
+        
         if token_result is None or 'access_token' not in token_result:
             return None, {}
 
@@ -111,12 +110,14 @@ class TokenValidator:
                 username=claims['sub'], email=claims['sub'], is_active=True
             )
 
+        print(f"{user=}")
         self.handle_claims(claims, user)
 
         tokens = {expected_key: token_result[expected_key]
                   for expected_key in ['access_token', 'refresh_token', 'expires_in']
                   if expected_key in token_result}
 
+        print(f"user is {user}")
         return user, tokens
 
     def handle_claims(self, claims, user):
@@ -131,6 +132,6 @@ class TokenValidator:
             {'token': token, 'token_type_hint': 'access_token'}
         )
         if not validate_response['active']:
-            raise TokenExpired
+            raise TokenExpired("Token expired")
 
-        self.handle_token_result({'access_token': token})
+        return self.handle_token_result({'access_token': token})

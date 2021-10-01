@@ -1,23 +1,26 @@
 """Okta OpenID Authorization Middleware."""
 import logging
 
+from rest_framework import authentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.contrib.auth.models import AnonymousUser
+
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
 from django.http import HttpRequest
 from okta_oauth2.exceptions import InvalidToken
 from okta_oauth2.exceptions import TokenExpired
 from rest_framework.exceptions import PermissionDenied
-
+from rest_framework import exceptions
 logger = logging.getLogger(__name__)
 
 
 def get_access_token(request: HttpRequest):
     """Extract Okta access token if present in request."""
-    auth_header = request.META.get('HTTP_AUTHORIZATION').strip()
-    if not auth_header:
+    if not (auth_header := request.META.get('HTTP_AUTHORIZATION')):
         raise PermissionDenied('Okta access token not present in request.')
 
-    return auth_header.split(' ')[-1]
+    return auth_header.strip().split(' ')[-1]
 
 
 def validate_or_handle_error(config: Config, request: HttpRequest):
@@ -58,3 +61,27 @@ class OktaMiddleware:
     def is_public_url(self, url):
         """Check whether url matches any of the configured publicly accessible patterns."""
         return any(public_url.match(url) for public_url in self.config.public_urls)
+
+class OktaAuthentication(JWTAuthentication):
+    """
+    An authentication plugin that authenticates requests through a JSON web
+    token provided in a request header.
+    """
+
+    def authenticate(self, request):
+        
+        header = self.get_header(request)
+        if header is None:
+            raise exceptions.AuthenticationFailed("Bearer token auth header required")
+
+        raw_token = self.get_raw_token(header)
+        if raw_token is None:
+            return exceptions.AuthenticationFailed("Auth header malformed")
+
+        validator = TokenValidator(Config(), None, request)
+        try:
+            user, tokens = validator.validate_access_token(raw_token)
+        except (TokenExpired, InvalidToken) as okta_auth_error:
+            raise exceptions.AuthenticationFailed(str(okta_auth_error))
+ 
+        return user, tokens["access_token"]

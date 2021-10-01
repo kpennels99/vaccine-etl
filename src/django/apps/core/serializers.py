@@ -36,3 +36,11 @@ class OktaLoginSerializer(serializers.Serializer):
 
     username = serializers.CharField(allow_blank=False, required=True)
     password = serializers.CharField(allow_blank=False, required=True)
+
+
+class OktaLoginResponseSerializer(serializers.Serializer):
+    """Serialize Okta login POST request."""
+
+    access = serializers.CharField(allow_blank=False, required=True)
+    refresh = serializers.CharField(allow_blank=False, required=True)
+    expires_in = serializers.IntegerField()

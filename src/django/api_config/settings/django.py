@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'django_extensions',
     'rest_framework_filters',
+    'django_celery_results',
 
     # local
     'apps.core',
@@ -55,18 +56,23 @@ INSTALLED_APPS = [
 INSIGHTS_AUTH_BACKENDS = env.list('INSIGHTS_AUTH_BACKENDS', default=list())
 auth_backends = [backend if backend.startswith('django.') else f'apps.core.{backend}'
                  for backend in INSIGHTS_AUTH_BACKENDS]
-if auth_backends:
-    USE_OKTA_AUTH = any(map(lambda backend: 'OktaBackend' in backend, auth_backends))
-else:
-    USE_OKTA_AUTH = False
+if not auth_backends:
     auth_backends = ['django.contrib.auth.backends.ModelBackend', ]
 
 AUTHENTICATION_BACKENDS = tuple(auth_backends)
+
 
 INSIGHTS_AUTH_MIDDLEWARE = env.list('INSIGHTS_AUTH_MIDDLEWARE', default=list())
 auth_middleware = [middleware if middleware.startswith('django.')
                    else f'apps.core.{middleware}'
                    for middleware in INSIGHTS_AUTH_MIDDLEWARE]
+
+USE_OKTA_AUTH = False
+if auth_middleware:
+    USE_OKTA_AUTH = any(
+        map(lambda middleware: 'OktaMiddleware' in middleware, auth_middleware)
+    )
+    
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -77,14 +83,15 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-MIDDLEWARE.extend(auth_middleware)
+# MIDDLEWARE.extend(auth_middleware)
 
 ROOT_URLCONF = 'api_config.urls'
 
+TEMPLATE_DIR = os.path.join(BASE_DIR.parent, 'apps/github_vax/templates/')
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

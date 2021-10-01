@@ -8,6 +8,7 @@ from okta_oauth2.exceptions import TokenRequestFailed
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 
+from drf_spectacular.utils import extend_schema
 
 class OktaLoginView(GenericAPIView):
     """Authenticate user details and generate access and refresh token on success."""
@@ -16,8 +17,9 @@ class OktaLoginView(GenericAPIView):
     permission_classes = []
     serializer_class = serializers.OktaLoginSerializer
 
+    @extend_schema(responses={200: serializers.OktaLoginResponseSerializer})
     def post(self, request):
-        """Authenticate user login."""
+        """Authenticate user credentials against Okta OpenID application."""
         request_data = self.get_serializer(data=request.data)
         serialized_data = request_data.validated_data \
             if request_data.is_valid(raise_exception=True) else None
@@ -29,6 +31,6 @@ class OktaLoginView(GenericAPIView):
                                                     password=serialized_data['password'])
         except TokenRequestFailed as login_err:
             raise ValidationError(str(login_err))
-
+        
         login(request, user)
         return JsonResponse(tokens, status=200)

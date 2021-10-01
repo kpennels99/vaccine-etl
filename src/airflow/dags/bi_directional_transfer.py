@@ -24,14 +24,39 @@ with DAG(
         },
         dag=dag
     )
+    
+    transformations = [
+        {
+            'name': 'FillEmptyCountsTransformer',
+            'filter_column': "location",
+            'count_columns': ["total_vaccinations", "people_vaccinated", 
+                              "people_fully_vaccinated", "total_boosters",
+                              "daily_vaccinations_raw", "daily_vaccinations",
+                              "total_vaccinations_per_hundred", "people_vaccinated_per_hundred",
+                              "people_fully_vaccinated_per_hundred", "total_boosters_per_hundred",
+                              "daily_vaccinations_per_million"]
+        },
+        {
+            'name': 'AddExternalColumnTransformer',
+            'match_column_mapping': {"iso_code": "alpha-3"},
+            "external_columns": ["region", "sub-region", "intermediate-region"]
+        },
+        {
+            'name': 'RenameTransformer',
+            # make column names python identifier compliant to allow django orm mapping
+            'mapping': {"sub-region": "sub_region",
+                        "intermediate-region": "intermediate_region"}
+        }
+    ]
 
-    # transform_data = PythonOperator(
-    #     task_id='transform_data',
-    #     python_callable=callables.transform_data,
-    #     op_kwargs={
-    #     },
-    #     dag=dag
-    # )
+    transform_data = PythonOperator(
+        task_id='transform_data',
+        python_callable=callables.transform_data,
+        op_kwargs={
+            "transformations": transformations
+        },
+        dag=dag
+    )
 
     load_github_data = PythonOperator(
         task_id='load_data',
@@ -39,4 +64,4 @@ with DAG(
         dag=dag
     )
 
-    extract_data >> load_github_data
+    extract_data >> transform_data >> load_github_data

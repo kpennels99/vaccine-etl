@@ -29,7 +29,7 @@ urlpatterns = [
     path('', include(('apps.core.urls', 'core'), namespace='core')),
     path('',
          include(('apps.github_vax.urls',
-                  'apps.github_vax'),
+                  'github_vax'),
                  namespace='github_vax')
          ),
     path('accounts/', include('rest_framework.urls',
