@@ -21,4 +21,3 @@ WORKDIR /code
 
 
 ENTRYPOINT ["/entrypoint.sh"]
-

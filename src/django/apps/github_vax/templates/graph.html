@@ -29,7 +29,7 @@
         }
 
         function map_field_to_layout(field, country_object){
-            return 
+            return
         }
 
         let plot_data  = {{ data|safe }}
@@ -38,7 +38,7 @@
         Object.keys(plot_data).map(function(key, index) {
                 let xax = "x".concat((index+1).toString())
                 let yax = "y".concat((index+1).toString())
-                plotly_container.push(...map_field_to_ploty(key, plot_data[key],xax, yax ))                
+                plotly_container.push(...map_field_to_ploty(key, plot_data[key],xax, yax ))
                 layout_container.push({
                                       xref: 'paper',
                                       yref: 'paper',
@@ -59,4 +59,3 @@
         console.log(layout)
         let TESTER = document.getElementById('tester');
         Plotly.newPlot(TESTER, plotly_container, layout, {responsive: true});
-

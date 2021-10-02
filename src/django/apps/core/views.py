@@ -4,11 +4,11 @@ from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
 from django.contrib.auth import login
 from django.http.response import JsonResponse
+from drf_spectacular.utils import extend_schema
 from okta_oauth2.exceptions import TokenRequestFailed
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import GenericAPIView
 
-from drf_spectacular.utils import extend_schema
 
 class OktaLoginView(GenericAPIView):
     """Authenticate user details and generate access and refresh token on success."""
@@ -31,6 +31,6 @@ class OktaLoginView(GenericAPIView):
                                                     password=serialized_data['password'])
         except TokenRequestFailed as login_err:
             raise ValidationError(str(login_err))
-        
+
         login(request, user)
         return JsonResponse(tokens, status=200)

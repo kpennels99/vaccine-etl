@@ -95,7 +95,6 @@ class TokenValidator:
 
     def handle_token_result(self, token_result):
         """Get or create user and extract the required Okta token related values."""
-        
         if token_result is None or 'access_token' not in token_result:
             return None, {}
 
@@ -110,20 +109,11 @@ class TokenValidator:
                 username=claims['sub'], email=claims['sub'], is_active=True
             )
 
-        print(f"{user=}")
-        self.handle_claims(claims, user)
-
         tokens = {expected_key: token_result[expected_key]
                   for expected_key in ['access_token', 'refresh_token', 'expires_in']
                   if expected_key in token_result}
 
-        print(f"user is {user}")
         return user, tokens
-
-    def handle_claims(self, claims, user):
-        """Modify user attributes based on the received claims."""
-        # pydantic use case.
-        pass
 
     def validate_access_token(self, token):
         """Remotely validate whether access token is still active / not expired."""
@@ -132,6 +122,6 @@ class TokenValidator:
             {'token': token, 'token_type_hint': 'access_token'}
         )
         if not validate_response['active']:
-            raise TokenExpired("Token expired")
+            raise TokenExpired('Token expired')
 
         return self.handle_token_result({'access_token': token})

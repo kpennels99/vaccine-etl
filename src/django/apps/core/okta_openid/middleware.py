@@ -1,17 +1,14 @@
 """Okta OpenID Authorization Middleware."""
 import logging
 
-from rest_framework import authentication
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.contrib.auth.models import AnonymousUser
-
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
 from django.http import HttpRequest
 from okta_oauth2.exceptions import InvalidToken
 from okta_oauth2.exceptions import TokenExpired
-from rest_framework.exceptions import PermissionDenied
 from rest_framework import exceptions
+from rest_framework.exceptions import PermissionDenied
+from rest_framework_simplejwt.authentication import JWTAuthentication
 logger = logging.getLogger(__name__)
 
 
@@ -62,26 +59,24 @@ class OktaMiddleware:
         """Check whether url matches any of the configured publicly accessible patterns."""
         return any(public_url.match(url) for public_url in self.config.public_urls)
 
+
 class OktaAuthentication(JWTAuthentication):
-    """
-    An authentication plugin that authenticates requests through a JSON web
-    token provided in a request header.
-    """
+    """Authenticate user by extracting and validating request bearer Okta token."""
 
     def authenticate(self, request):
-        
+        """Extract bearer auth header and validate raw token against Okta application."""
         header = self.get_header(request)
         if header is None:
-            raise exceptions.AuthenticationFailed("Bearer token auth header required")
+            raise exceptions.AuthenticationFailed('Bearer token auth header required')
 
         raw_token = self.get_raw_token(header)
         if raw_token is None:
-            return exceptions.AuthenticationFailed("Auth header malformed")
+            return exceptions.AuthenticationFailed('Auth header malformed')
 
         validator = TokenValidator(Config(), None, request)
         try:
             user, tokens = validator.validate_access_token(raw_token)
         except (TokenExpired, InvalidToken) as okta_auth_error:
             raise exceptions.AuthenticationFailed(str(okta_auth_error))
- 
-        return user, tokens["access_token"]
+
+        return user, tokens['access_token']

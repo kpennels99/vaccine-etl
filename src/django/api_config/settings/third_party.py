@@ -1,5 +1,6 @@
 """Third party application configurations."""
 from datetime import timedelta
+
 from .environment import env
 
 # DRF
@@ -57,11 +58,11 @@ OKTA_AUTH = {
 }
 
 
-# Celery 
+# Celery
 CELERY_RESULT_BACKEND = 'django-db'
 DELAY_CELERY_TASKS = env.bool('DELAY_CELERY_TASKS', True)
 
-# Simple JWT 
+# Simple JWT
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),

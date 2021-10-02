@@ -72,7 +72,7 @@ if auth_middleware:
     USE_OKTA_AUTH = any(
         map(lambda middleware: 'OktaMiddleware' in middleware, auth_middleware)
     )
-    
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -83,7 +83,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-# MIDDLEWARE.extend(auth_middleware)
+MIDDLEWARE.extend(auth_middleware)
 
 ROOT_URLCONF = 'api_config.urls'
 

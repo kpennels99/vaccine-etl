@@ -1,7 +1,10 @@
+"""Celery App instantiation."""
+import logging
 import os
 
 from celery import Celery
 
+logger = logging.getLogger(__name__)
 # Set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'api_config.settings')
 
@@ -20,4 +23,5 @@ app.autodiscover_tasks()
 
 @app.task(bind=True)
 def debug_task(self):
-    print(f'Request: {self.request!r}')
+    """Debug celery task."""
+    logger.info(f'Request: {self.request!r}')
