@@ -52,5 +52,6 @@ jobs:
           DJANGO_DB_PORT: 5432
           SECRET_KEY: 'github_key'
           PYTHONPATH: src/django
+          TEST_MODE: True
         run: |
           coverage run -m pytest test/django && coverage report -m --fail-under=85
