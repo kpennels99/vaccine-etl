@@ -1,7 +1,6 @@
 FROM python:3.8
 ENV PYTHONUNBUFFERED 1
 
-RUN echo $(ls)
 COPY ./docker-scripts/entrypoint.sh entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
