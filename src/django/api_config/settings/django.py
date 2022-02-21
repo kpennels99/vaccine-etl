@@ -53,25 +53,7 @@ INSTALLED_APPS = [
     'apps.github_vax'
 ]
 
-INSIGHTS_AUTH_BACKENDS = env.list('INSIGHTS_AUTH_BACKENDS', default=list())
-auth_backends = [backend if backend.startswith('django.') else f'apps.core.{backend}'
-                 for backend in INSIGHTS_AUTH_BACKENDS]
-if not auth_backends:
-    auth_backends = ['django.contrib.auth.backends.ModelBackend', ]
-
-AUTHENTICATION_BACKENDS = tuple(auth_backends)
-
-
-INSIGHTS_AUTH_MIDDLEWARE = env.list('INSIGHTS_AUTH_MIDDLEWARE', default=list())
-auth_middleware = [middleware if middleware.startswith('django.')
-                   else f'apps.core.{middleware}'
-                   for middleware in INSIGHTS_AUTH_MIDDLEWARE]
-
-USE_OKTA_AUTH = False
-if auth_middleware:
-    USE_OKTA_AUTH = any(
-        map(lambda middleware: 'OktaMiddleware' in middleware, auth_middleware)
-    )
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend', ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -83,7 +65,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
 ]
-MIDDLEWARE.extend(auth_middleware)
 
 ROOT_URLCONF = 'api_config.urls'
 
@@ -163,3 +144,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_URL = env.str('STATIC_URL', default='static/')
 STATIC_ROOT = os.path.join(BASE_DIR, env.str('STATIC_ROOT', default='static/'))
+
+# Where to find fixtures
+FIXTURE_DIRS = [os.path.join(BASE_DIR, 'apps/github_vax/fixtures/')]

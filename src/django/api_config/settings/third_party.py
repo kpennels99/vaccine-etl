@@ -1,4 +1,4 @@
-"""Third party application configurations."""
+"""Third party installed application configurations."""
 from datetime import timedelta
 
 from .environment import env
@@ -8,7 +8,7 @@ REST_FRAMEWORK = {
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        # 'apps.core.okta_openid.middleware.OktaAuthentication',
+        'apps.core.okta_openid.authentication.OktaAuthentication',
         'rest_framework.authentication.SessionAuthentication'
     ],
 
@@ -44,7 +44,7 @@ CORS_ALLOW_HEADERS = (
 )
 
 # Okta
-
+USE_OKTA_AUTH = env.bool('USE_OKTA_AUTH', False)
 OKTA_AUTH = {
     'ORG_URL': env.str('OKTA_ORG_URL', 'https://dev-46582267.okta.com/'),
     'ISSUER': env.str('OKTA_ISSUER', 'https://dev-46582267.okta.com/oauth2/default'),
@@ -66,4 +66,5 @@ DELAY_CELERY_TASKS = env.bool('DELAY_CELERY_TASKS', True)
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'AUTH_HEADER_TYPES': ('JWT',)
 }
