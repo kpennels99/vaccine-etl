@@ -5,6 +5,7 @@ from textwrap import dedent
 import pytest
 from django.core.management import call_command
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 from okta_oauth2.exceptions import TokenExpired
 
@@ -15,7 +16,7 @@ User = get_user_model()
 def django_db_setup(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         call_command('migrate')
-        call_command('loaddata', 'github_vax_githubvaxdata.json')
+        call_command('loaddata', 'test/django/github_vax/fixtures/vax_data.json')
 
 
 @pytest.fixture

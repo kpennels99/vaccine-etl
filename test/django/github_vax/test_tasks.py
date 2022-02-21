@@ -31,7 +31,7 @@ def test_get_location_data():
 
 @pytest.mark.django_db 
 def test_format_location_data():
-    """Convert queryset field and date to Plotly x y cordinaties."""
+    """Test whether queryset fields and date are converted to Plotly x y cordinaties."""
     _, filtered_queryset = get_location_data("South Africa", ["id"])
     expected_data = {
         "x": [item.date for item in filtered_queryset],
@@ -41,14 +41,13 @@ def test_format_location_data():
     
 
 @pytest.mark.django_db 
-def test_format_location_data(logged_in_user):
-    """Convert queryset field and date to Plotly x y cordinaties."""
+def test_generate_report_data(logged_in_user):
+    """Test whether report contains the expected fields and reports a success."""
     location = "South Africa"
     vaccination_fields = "people_vaccinated"
     data = GithubVaxData.objects.filter(location=location)
     assert data.exists()
-    assert len(data) == 1
-    row = data[0]
+    assert len(data) == 11
     report = GraphReport.objects.create(locations=[location],
                                         vaccination_fields=[vaccination_fields],
                                         created_by=logged_in_user)
@@ -57,7 +56,12 @@ def test_format_location_data(logged_in_user):
     assert report.status == "success"
     expected_data = {
         vaccination_fields: {
-            location: {"x" : [row.date], "y": [getattr(row, vaccination_fields)]}
+            location: 
+                {
+                    "x" : [row.date for row in data],
+                    "y": [getattr(row, vaccination_fields) for row in data]
+                }
         }
     }
+    print(expected_data, report.result)
     assert report.result == json.dumps(expected_data, default=str)
