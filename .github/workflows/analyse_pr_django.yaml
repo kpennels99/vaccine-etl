@@ -48,6 +48,7 @@ jobs:
         env:
           DJANGO_DB_USERNAME: postgres
           DJANGO_DB_PASSWORD: postgres
+          DJANGO_DB_NAME: postgres
           DJANGO_DB_HOST: localhost
           DJANGO_DB_PORT: 5432
           SECRET_KEY: 'github_key'
