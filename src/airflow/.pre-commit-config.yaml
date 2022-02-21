@@ -1,0 +1,27 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v3.1.0
+  hooks:
+    - id: end-of-file-fixer
+    - id: trailing-whitespace
+    - id: requirements-txt-fixer
+    - id: check-merge-conflict
+    - id: check-json
+    - id: double-quote-string-fixer
+    - id: check-ast
+    - id: check-added-large-files
+      args: ['--maxkb=800']
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.8.3
+    hooks:
+    -   id: flake8
+        additional_dependencies: ['flake8-docstrings',
+                                  'flake8-eradicate',
+                                  'flake8-polyfill',
+                                  'flake8-print',
+                                  'flake8-per-file-ignores'
+        ]
+- repo: https://github.com/asottile/reorder_python_imports
+  rev: v2.3.4
+  hooks:
+    - id: reorder-python-imports

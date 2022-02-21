@@ -1,0 +1,58 @@
+name: Analyze Django
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+    paths:
+      - 'src/django/**'
+      - 'test/django/**'
+      - '.github/workflows/analyse_pr_django.yaml'
+
+jobs:
+  analyse:
+    name: Analyse Changes to Django in Pull Request
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:12.6
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports: [ "5432:5432" ]
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+      - name: 'Checkout: ${{ github.REF }}'
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          ref: ${{ github.HEAD_REF }}
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+      - name: Cache python dependencies
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('./src/django/requirements.txt') }}
+      - name: Install dependencies
+        working-directory: ./src/django/
+        run: |
+          pip install --upgrade pip setuptools
+          pip install --upgrade --upgrade-strategy eager -r requirements.txt
+      - name: Lint with Pre-Commit on all Django related files
+        run: git ls-files -- src/django | xargs pre-commit run -v -c src/django/.pre-commit-config.yaml --files
+      - name: Pytest with Coverage and Unit Test Report
+        env:
+          DJANGO_DB_USERNAME: postgres
+          DJANGO_DB_PASSWORD: postgres
+          DJANGO_DB_NAME: postgres
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_PORT: 5432
+          SECRET_KEY: 'github_key'
+          PYTHONPATH: src/django
+          TEST_MODE: True
+        run: |
+          coverage run -m pytest test/django && coverage report -m --fail-under=85

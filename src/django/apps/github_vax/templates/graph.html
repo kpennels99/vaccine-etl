@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div id="tester" ></div>
+    <script type="text/javascript">
+        function map_field_to_ploty(field, country_object, xaxis, yaxis){
+            field_plots = []
+            for (const country in country_object){
+                field_plots.push({
+                    x: country_object[country].x,
+                    y: country_object[country].y,
+                    xaxis: xaxis,
+                    yaxis: yaxis,
+                    legendgroup: field,
+                    legendgrouptitle: {text: field},
+                    mode: 'lines+markers',
+                    name: country,
+                    type: 'scatter'
+                })
+            };
+
+            return field_plots
+        }
+
+        function map_field_to_layout(field, country_object){
+            return
+        }
+
+        let plot_data  = {{ data|safe }}
+        let plotly_container = []
+        let layout_container = []
+        Object.keys(plot_data).map(function(key, index) {
+                let xax = "x".concat((index+1).toString())
+                let yax = "y".concat((index+1).toString())
+                plotly_container.push(...map_field_to_ploty(key, plot_data[key],xax, yax ))
+                layout_container.push({
+                                      xref: 'paper',
+                                      yref: 'paper',
+                                      x: 0.0,
+                                      y: 1.05,
+                                      xanchor: 'left',
+                                      yanchor: 'bottom',
+                                      text: key,
+                                      showarrow: false,
+                                    })
+        });
+        var layout = {
+            autosize: true,
+            grid: {rows: 1, columns: 2, pattern: 'independent'},
+            annotations: layout_container
+        };
+        let TESTER = document.getElementById('tester');
+        Plotly.newPlot(TESTER, plotly_container, layout, {responsive: true});
+    </script>
+</body>

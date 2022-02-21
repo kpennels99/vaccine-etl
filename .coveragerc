@@ -1,0 +1,4 @@
+[run]
+include = src/django/*
+omit = *migrations*, *tests*, *sgi**, *__init__*, *manage.py, src/django/api_config/settings/*
+
