@@ -12,7 +12,7 @@ class GithubVaxData(models.Model):
     # TODO: Add github owid descriptions
     location = models.CharField(max_length=500, blank=True, null=True)
     iso_code = models.CharField(max_length=10, blank=True, null=True)
-    date = models.DateField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
     total_vaccinations = models.FloatField(blank=True, null=True)
     people_vaccinated = models.FloatField(blank=True, null=True)
     people_fully_vaccinated = models.FloatField(blank=True, null=True)
