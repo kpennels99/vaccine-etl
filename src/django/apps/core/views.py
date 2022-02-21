@@ -1,4 +1,5 @@
 """Core view definitions."""
+from django.http.request import HttpRequest
 from apps.core import serializers
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
@@ -18,7 +19,7 @@ class OktaLoginView(GenericAPIView):
     serializer_class = serializers.OktaLoginSerializer
 
     @extend_schema(responses={200: serializers.OktaLoginResponseSerializer})
-    def post(self, request):
+    def post(self, request: HttpRequest):
         """Authenticate user credentials against Okta OpenID application."""
         request_data = self.get_serializer(data=request.data)
         serialized_data = request_data.validated_data \

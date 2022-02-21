@@ -12,8 +12,10 @@ logger = get_task_logger(__file__)
 
 def run_celery(callable_task, *args, **kwargs):
     """Run celery task."""
-    if settings.DELAY_CELERY_TASKS:
-        return callable_task.delay(*args, **kwargs)
+    # print(settings.DELAY_CELERY_TASKS)
+    # if settings.DELAY_CELERY_TASKS:
+    #     print("delaying")
+    #     return callable_task.delay(*args, **kwargs)
 
     return callable_task(*args, **kwargs)
 
@@ -37,6 +39,7 @@ def format_location_data(field, queryset):
 @app.task
 def generate_report_data(uuid):
     """Run a GraphReport and Plotly format the results."""
+    print("in task")
     report = GraphReport.objects.get(pk=uuid)
 
     try:
@@ -49,7 +52,8 @@ def generate_report_data(uuid):
             }
             for field in report.vaccination_fields
         }
-        report.result = json.dumps(result)
+        print(result)
+        report.result = json.dumps(result, default=str)
         report.status = 'success'
     except Exception as ex:
         logger.error(str(ex))
