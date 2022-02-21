@@ -1,5 +1,6 @@
 """Okta Auth Configuration Adapter."""
 import re
+from typing import List
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -15,12 +16,15 @@ DEFAULT_PUBLIC_NAMED_URLS = (
     'okta_login',
 )
 
-
 class Config:
-    """Okta Auth adapter class."""
+    """Okta Auth configuration adapter class."""
 
     def __init__(self):
-        """Initialise instance variables with configure OKTA_AUTH Django settings."""
+        """Initialise instance variables with configured OKTA_AUTH Django settings.
+
+        Raises:
+            ImproperlyConfigured: When expected Django setting is not accessible.
+        """
         try:
             # Configuration object
             self.org_url = settings.OKTA_AUTH['ORG_URL']
@@ -41,14 +45,18 @@ class Config:
         except (AttributeError, KeyError):
             raise ImproperlyConfigured('Missing Okta authentication settings')
 
-    def build_public_urls(self):
-        """Build combined list of reversed PUBLIC_NAMED_URLS as well as PUBLIC_URLS."""
-        named_urls = []
+    def build_public_urls(self) -> List[str]:
+        """Build combined list of reversed PUBLIC_NAMED_URLS as well as PUBLIC_URLS.
+
+        Returns:
+            List[str]: List of regex compiled urls not requiring Okta authentication.
+        """
 
         public_named_urls = (
             settings.OKTA_AUTH.get('PUBLIC_NAMED_URLS', ()) + DEFAULT_PUBLIC_NAMED_URLS
         )
 
+        named_urls = []
         for name in public_named_urls:
             try:
                 named_urls.append(reverse(name))
