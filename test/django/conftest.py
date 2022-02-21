@@ -15,6 +15,7 @@ User = get_user_model()
 def django_db_setup(django_db_setup, django_db_blocker):
     with django_db_blocker.unblock():
         call_command('migrate')
+        call_command('loaddata', 'github_vax_githubvaxdata.json')
 
 
 @pytest.fixture
@@ -51,14 +52,15 @@ def mock_discovery_document(mocker, monkeypatch):
 
 
 @pytest.fixture
-def mock_token_response(mocker):
+def mock_token_response(mocker, mock_jwt_token):
     """Mock argo client create_namespaced_workflowtemplate method failure."""
-    mock_payload = {'access_token': 'okta access token',
+    mock_payload = {'access_token': mock_jwt_token,
                     'refresh_token': 'okta refresh token',
                     'expires_in': 3600,
                     'extra': 'metadata'}
     mock_response = mocker.Mock()
     mock_response.json = mocker.Mock(return_value=mock_payload)
+    mock_response.status_code = 200
     mock_post = mocker.patch('requests.post', return_value=mock_response)
     return mock_post
 
