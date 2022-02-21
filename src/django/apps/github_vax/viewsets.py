@@ -1,14 +1,15 @@
 """Viewset definitions."""
 from typing import Union
 
-from django.http.response import HttpResponse, JsonResponse
 from apps.core.okta_openid.permissions import OktaHasGraphingAccess
-from django.http.request import HttpRequest
 from apps.github_vax import filtersets
 from apps.github_vax import models
 from apps.github_vax import serializers
 from apps.github_vax.tasks import generate_report_data
 from apps.github_vax.tasks import run_celery
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse
+from django.http.response import JsonResponse
 from django.shortcuts import render
 from rest_framework import mixins
 from rest_framework import renderers
@@ -32,18 +33,18 @@ class GraphReportViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     renderer_classes = (renderers.JSONRenderer, renderers.TemplateHTMLRenderer)
     permission_classes = [OktaHasGraphingAccess]
 
-    def retrieve(self, request: HttpRequest, 
+    def retrieve(self, request: HttpRequest,
                  *args, **kwargs) -> Union[JsonResponse, HttpResponse]:
         """Return html graphing report result if the generation process was successful.
-        
-        If the Graph report data formatting was successful, return a HTML page as the 
+
+        If the Graph report data formatting was successful, return a HTML page as the
         response, other return standard JSON response
 
         Args:
             request (HttpRequest): Incoming HTTP request.
 
         Returns:
-            Union[JsonResponse, HttpResponse]: HTML or JSON response depending on current 
+            Union[JsonResponse, HttpResponse]: HTML or JSON response depending on current
                 status of report result
         """
         instance = self.get_object()
@@ -54,6 +55,4 @@ class GraphReportViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
     def perform_create(self, serializer: serializers.GithubVaxDataSerializer):
         """Create model instance and run the corresponding report."""
         graph_report = serializer.save()
-        print("running celery")
         run_celery(generate_report_data, graph_report.pk)
-        print("celery run")

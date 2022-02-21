@@ -16,6 +16,7 @@ DEFAULT_PUBLIC_NAMED_URLS = (
     'okta_login',
 )
 
+
 class Config:
     """Okta Auth configuration adapter class."""
 
@@ -51,7 +52,6 @@ class Config:
         Returns:
             List[str]: List of regex compiled urls not requiring Okta authentication.
         """
-
         public_named_urls = (
             settings.OKTA_AUTH.get('PUBLIC_NAMED_URLS', ()) + DEFAULT_PUBLIC_NAMED_URLS
         )

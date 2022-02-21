@@ -39,8 +39,8 @@ Running migrations:
 ./venv/bin/python3 src/django/manage.py createsuperuser
 Username: username
 Email address: user@user.com
-Password: 
-Password (again): 
+Password:
+Password (again):
 Superuser created successfully.
 ./venv/bin/python3 src/django/manage.py collectstatic
 
@@ -104,7 +104,7 @@ Creating vaccine-etl_django-webserver_1 ... done
 
 **NOTE**: These containers can take up to 2 minutes to startup. Run `make logs` to inspect whether these services have successfully started up
 
-### Loading data 
+### Loading data
 
 This project's intention is use Airflow and the `github_vaccine_dag.py` [DAG](/src/airflow/dags/github_vaccine_dag.py) to periodically import vaccine related data into the Django Postgres database.
 
@@ -112,7 +112,7 @@ If you would like to skip setting up Airflow and using the DAG, a django fixture
 
 ```bash
 vaccine-etl
-➜ cd src/django/ 
+➜ cd src/django/
 vaccine-etl/src/django
 ➜ python manage.py loaddata github_vax_data/2021.json
 
@@ -128,14 +128,14 @@ Installed 72864 object(s) from 1 fixture(s)
 All endpoints besides the the JWT related endpoints (`/api/token/`, `/api/token/refresh/` and `/okta_login`) require a Bearer token to be included in the Authorization HTTP header. The paragraphs below will explian the different token authentication flows supported by the API.
 #### Okta OpenID Connect OAuth2
 
-The following documentation relates resource owner password grant type flow. For more background on these topics, read the following articles: 
-https://developer.okta.com/docs/guides/implement-grant-type/ropassword/main/. 
+The following documentation relates resource owner password grant type flow. For more background on these topics, read the following articles:
+https://developer.okta.com/docs/guides/implement-grant-type/ropassword/main/.
 
 **NOTE**: In order to use `OktaAuthentication`, you need to be added to my Okta application (or provide your own client ID and secret of an application that supports  resource owner password authentication). I'll be happy to add anyone who is wanting to to test this authentication flow. Send me an email and I'll gladly arrange the necessary logins.
 
 On login, it expects a username password combination, the combination that was created when a user is added to the Okta application, and returns the access and refresh tokens on success.
 
-Request Okta JWT access token - `POST /okta_login` 
+Request Okta JWT access token - `POST /okta_login`
 | Request | Response |
 |---------|----------|
 | <code> {"username": "string","password": "string"} </code> | <code> {"access": "string","refresh": "string","expires_in": "integer"} </code> |
@@ -144,21 +144,21 @@ When making requests to any protected endpoint, the Okta access token should be 
 ```http
 AUTHORIZATION: Bearer <okta_access_token>
 ```
-On reception of a `Authorization` header with a Bearer prefix, the `OktaAuthentication` authentication class will evaluate the contained token. 
+On reception of a `Authorization` header with a Bearer prefix, the `OktaAuthentication` authentication class will evaluate the contained token.
 
 #### Django JWT
-As an alternative to the Okta authentication flow, this API also supports the minting and verification of it's own JWTs. This support is provided by the 3rd party package 
+As an alternative to the Okta authentication flow, this API also supports the minting and verification of it's own JWTs. This support is provided by the 3rd party package
 https://django-rest-framework-simplejwt.readthedocs.io/en/latest/getting_started.html#getting-started. On login, it expects a username password combination, the same combination that was created when running `make django_create` or `manage.py createsuperuser`, and returns the access and refresh tokens on success.
 
 <br>
 
-Request JWT access and refresh token - `POST /api/token/` 
+Request JWT access and refresh token - `POST /api/token/`
 | Request | Response |
 |---------|----------|
 | <code> {"username": "string","password": "string"} </code> | <code> {"access": "string","refresh": "string"} </code> |
 <br>
 
-Refresh access token using refresh token - `POST /api/token/refresh/` 
+Refresh access token using refresh token - `POST /api/token/refresh/`
 | Request | Response |
 |---------|----------|
 | <code> {"refresh": "string"} </code> | <code> {"access": "string"} </code> |
@@ -167,7 +167,7 @@ In order to allow for both `JWTAuthentication` and `OktaAuthentication` at the s
 ```http
 AUTHORIZATION: JWT <django_jwt_token>
 ```
-On reception of a `Authorization` header with a JWT prefix, the `JWTAuthentication` authentication class will evaluate the contained token. 
+On reception of a `Authorization` header with a JWT prefix, the `JWTAuthentication` authentication class will evaluate the contained token.
 
 ### **Authorization**
 
@@ -205,6 +205,6 @@ There are two choices to make when configuring the Django environment
 
 2. Asynchronous graph report generation - If the `DELAY_CELERY_TASKS` environment variable is set to False, the execution `/graph_report/` will occur synchronously
 
-### Vaccine Data filtering 
+### Vaccine Data filtering
 
 ## Tests

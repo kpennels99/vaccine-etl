@@ -1,9 +1,9 @@
 """Core view definitions."""
-from django.http.request import HttpRequest
 from apps.core import serializers
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
 from django.contrib.auth import login
+from django.http.request import HttpRequest
 from django.http.response import JsonResponse
 from drf_spectacular.utils import extend_schema
 from okta_oauth2.exceptions import TokenRequestFailed

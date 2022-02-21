@@ -1,15 +1,15 @@
 """Okta OpenID Oauth2 JWT validator."""
 import base64
 import logging
-from typing import Any, Dict, Tuple
-from xml.dom.minidom import Attr
-
-from django.http.request import HttpRequest
-from apps.core.okta_openid.conf import Config
+from typing import Any
+from typing import Dict
+from typing import Tuple
 
 import jwt
 import requests
+from apps.core.okta_openid.conf import Config
 from django.contrib.auth import get_user_model
+from django.http.request import HttpRequest
 from okta_oauth2.exceptions import InvalidToken
 from okta_oauth2.exceptions import TokenExpired
 from okta_oauth2.exceptions import TokenRequestFailed
@@ -107,19 +107,19 @@ class TokenValidator:
         return {'grant_type': 'refresh_token', 'refresh_token': str(refresh_token),
                 'scope': self.config.scopes, 'redirect_uri': self.config.redirect_uri}
 
-    def request_tokens(self, grant_type: str='owner_password', 
+    def request_tokens(self, grant_type: str = 'owner_password',
                        *args, **kwargs) -> Tuple[UserModel, Dict[str, Any]]:
         """Call the token endpoint using the payload for the respective grant type.
 
         Args:
-            grant_type (str, optional): Name of grant type to request from Okta. Defaults 
+            grant_type (str, optional): Name of grant type to request from Okta. Defaults
                 to 'owner_password'.
 
         Raises:
             Exception: When TokenValidator class does not contain grant_type as an attr.
 
         Returns:
-            Tuple[UserModel, Dict[str, Any]]: Corresponding user and their JWT tokens from 
+            Tuple[UserModel, Dict[str, Any]]: Corresponding user and their JWT tokens from
                 the grant type request.
         """
         grant_type_data_function = f'get_{grant_type}_data'
@@ -131,12 +131,12 @@ class TokenValidator:
         token_result = self.call_token_endpoint(self.token_endpoint, data)
         return self.handle_token_result(token_result)
 
-    def call_token_endpoint(self, url: str, 
+    def call_token_endpoint(self, url: str,
                             endpoint_data: Dict[str, Any]) -> Dict[str, Any]:
         """Make request authorization server's /token endpoint.
 
         Args:
-            url (str): Okta authentication/authorization endpoint 
+            url (str): Okta authentication/authorization endpoint
             endpoint_data (Dict[str, Any]): POST data related to Okta endpoint.
 
         Raises:
@@ -164,9 +164,9 @@ class TokenValidator:
         return response
 
     def handle_token_result(
-            self, 
+            self,
             token_result: Dict[str, Any]
-        ) -> Tuple[UserModel, Dict[str, Any]]:
+            ) -> Tuple[UserModel, Dict[str, Any]]:
         """Get or create user and extract the required Okta token related values.
 
         Args:
@@ -176,8 +176,8 @@ class TokenValidator:
             InvalidToken: When the access_token is not able to be decoded.
 
         Returns:
-            Tuple[UserModel, Dict[str, Any]]: Corresponding user and their JWT tokens from 
-                the grant type request.
+            Tuple[UserModel, Dict[str, Any]]: Corresponding user and their JWT tokens from
+            the grant type request.
         """
         if token_result is None or 'access_token' not in token_result:
             return None, {}
@@ -209,7 +209,7 @@ class TokenValidator:
             TokenExpired: If Okta registers the supplied token as invalid.
 
         Returns:
-            Tuple[UserModel, Dict[str, Any]]: Corresponding user and their JWT tokens from 
+            Tuple[UserModel, Dict[str, Any]]: Corresponding user and their JWT tokens from
                 the va;idate request.
         """
         validate_response = self.call_token_endpoint(

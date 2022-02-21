@@ -1,17 +1,17 @@
 """Okta OpenID Authorization Middleware."""
 import logging
-from typing import Tuple, Union
-
-from django.contrib.auth import get_user_model
+from typing import Tuple
+from typing import Union
 
 from apps.core.okta_openid.conf import Config
 from apps.core.okta_openid.tokens import TokenValidator
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.http import HttpRequest
 from okta_oauth2.exceptions import InvalidToken
 from okta_oauth2.exceptions import TokenExpired
 from rest_framework import exceptions
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.conf import settings
-from django.http import HttpRequest
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class OktaAuthentication(JWTAuthentication):
         """
         if not settings.USE_OKTA_AUTH:
             return None
-        
+
         header = self.get_header(request)
         if header is None:
             return None

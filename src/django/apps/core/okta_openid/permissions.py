@@ -1,7 +1,7 @@
 """Okta django permissions."""
-from django.http.request import HttpRequest
 import jwt
 from django.conf import settings
+from django.http.request import HttpRequest
 from rest_framework import permissions
 
 
