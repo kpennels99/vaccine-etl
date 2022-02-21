@@ -35,15 +35,12 @@ services:
     ports:
       - '8000:8000'
     depends_on:
-      - redis
       - postgresql
 
   redis:
     image: docker.io/bitnami/redis:6.0
     volumes:
       - 'redis_data:/bitnami'
-    ports:
-    - '6379:6379'
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
 
@@ -79,10 +76,21 @@ services:
       - AIRFLOW_EXECUTOR=${AIRFLOW__EXECUTOR}
       - AIRFLOW_WEBSERVER_HOST=${AIRFLOW__WEBSERVER_HOST}
       - AIRFLOW_LOAD_EXAMPLES=${AIRFLOW__LOAD_EXAMPLES}
+      - DESTINATION_DATABASE_NAME=${DJANGO__DATABASE_NAME}
+      - DESTINATION_DATABASE_HOST=${DJANGO__DATABASE_HOST}
+      - DESTINATION_DATABASE_PORT=${DJANGO__DATABASE_PORT}
+      - DESTINATION_DATABASE_USERNAME=${DJANGO__DATABASE_USER}
+      - DESTINATION_DATABASE_PASSWORD=${DJANGO__DATABASE_PASSWORD}
+      - DESTINATION_DATABASE_TABLE=${DEV__AIRFLOW__DESTINATION_TABLE}
+      - DATA_URL=${DEV__AIRLFOW__DATA_URL}
+      - IMPORT_FILE_PATH=${DEV__AIRLFOW__IMPORT_FILE_PATH}
     volumes:
       - airflow_scheduler_data:/bitnami
       - ./src/airflow/dags:/opt/bitnami/airflow/dags
       - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+      - ./airflow_data:/opt/airflow_data/
+    depends_on:
+      - postgresql
 
   airflow-worker:
     # TODO: to be reverted to use proper registry/distro on T39132
@@ -96,10 +104,22 @@ services:
       - AIRFLOW_EXECUTOR=${AIRFLOW__EXECUTOR}
       - AIRFLOW_WEBSERVER_HOST=${AIRFLOW__WEBSERVER_HOST}
       - AIRFLOW_LOAD_EXAMPLES=${AIRFLOW__LOAD_EXAMPLES}
+      - DESTINATION_DATABASE_NAME=${DJANGO__DATABASE_NAME}
+      - DESTINATION_DATABASE_HOST=${DJANGO__DATABASE_HOST}
+      - DESTINATION_DATABASE_PORT=${DJANGO__DATABASE_PORT}
+      - DESTINATION_DATABASE_USERNAME=${DJANGO__DATABASE_USER}
+      - DESTINATION_DATABASE_PASSWORD=${DJANGO__DATABASE_PASSWORD}
+      - DESTINATION_DATABASE_TABLE=${DEV__AIRFLOW__DESTINATION_TABLE}
+      - DATA_URL=${DEV__AIRLFOW__DATA_URL}
+      - IMPORT_FILE_PATH=${DEV__AIRLFOW__IMPORT_FILE_PATH}
     volumes:
       - airflow_worker_data:/bitnami
       - ./src/airflow/dags:/opt/bitnami/airflow/dags
       - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+      - ./airflow_data:/opt/airflow_data/
+    depends_on:
+      - postgresql
+      - redis
 
   airflow:
     image: docker.io/bitnami/airflow:1.10.15
@@ -111,12 +131,23 @@ services:
       - AIRFLOW_EXECUTOR=${AIRFLOW__EXECUTOR}
       - AIRFLOW_WEBSERVER_HOST=${AIRFLOW__WEBSERVER_HOST}
       - AIRFLOW_LOAD_EXAMPLES=${AIRFLOW__LOAD_EXAMPLES}
+      - DESTINATION_DATABASE_NAME=${DJANGO__DATABASE_NAME}
+      - DESTINATION_DATABASE_HOST=${DJANGO__DATABASE_HOST}
+      - DESTINATION_DATABASE_PORT=${DJANGO__DATABASE_PORT}
+      - DESTINATION_DATABASE_USERNAME=${DJANGO__DATABASE_USER}
+      - DESTINATION_DATABASE_PASSWORD=${DJANGO__DATABASE_PASSWORD}
+      - DESTINATION_DATABASE_TABLE=${DEV__AIRFLOW__DESTINATION_TABLE}
+      - DATA_URL=${DEV__AIRLFOW__DATA_URL}
+      - IMPORT_FILE_PATH=${DEV__AIRLFOW__IMPORT_FILE_PATH}
     ports:
       - '8080:8080'
     volumes:
       - airflow_data:/bitnami
       - ./src/airflow/dags:/opt/bitnami/airflow/dags
       - ./src/airflow/requirements.txt:/bitnami/python/requirements.txt
+      - ./airflow_data:/opt/airflow_data/
+    depends_on:
+      - postgresql
 volumes:
   airflow_scheduler_data:
     driver: local
