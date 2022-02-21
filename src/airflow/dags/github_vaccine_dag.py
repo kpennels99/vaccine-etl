@@ -1,8 +1,10 @@
-"""Bi direction transfer DAG."""
+"""OWID vaccine data ETL DAG."""
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.utils.dates import days_ago
+
 from utilities import callables
+from utilities.environment_adapter import EnvironmentAdapter
 
 
 args = {
@@ -16,12 +18,15 @@ with DAG(
     schedule_interval=None,
     start_date=days_ago(2)
 ) as dag:
-
+    
+    environment = EnvironmentAdapter()
+    execution_time = '{{ ts }}'
+    
     extract_data = PythonOperator(
         task_id='extract_raw_github_data',
         python_callable=callables.extract_data,
-        op_kwargs={
-        },
+        op_kwargs={"data_url": environment.data_url,
+                   "exec_time": execution_time},
         dag=dag
     )
     
@@ -53,14 +58,19 @@ with DAG(
         task_id='transform_data',
         python_callable=callables.transform_data,
         op_kwargs={
-            "transformations": transformations
+            "transformations": transformations,
+            "exec_time": execution_time
         },
         dag=dag
     )
 
+    db_driver = 'postgresql+psycopg2'
     load_github_data = PythonOperator(
         task_id='load_data',
         python_callable=callables.load_data,
+        op_kwargs={'db_connection': environment.destination_db_connection(db_driver),
+                   'destination_table': environment.destination_db_table,
+                   "exec_time": execution_time},
         dag=dag
     )
 
