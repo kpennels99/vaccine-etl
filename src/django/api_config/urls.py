@@ -16,22 +16,17 @@ Including another URLconf
 """
 from django.conf.urls import include
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.urls import path
 from drf_spectacular.views import SpectacularAPIView
-from drf_spectacular.views import SpectacularRedocView
 from drf_spectacular.views import SpectacularSwaggerView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.views import TokenRefreshView
 
-
 urlpatterns = [
+    path('', include(('apps.github_vax.urls',  'vax'), namespace='vax')),
     path('', include(('apps.core.urls', 'core'), namespace='core')),
-    path('',
-         include(('apps.github_vax.urls',
-                  'github_vax'),
-                 namespace='github_vax')
-         ),
     path('accounts/', include('rest_framework.urls',
                               namespace='rest_framework')),
     path('admin/', admin.site.urls, name='admin'),
@@ -40,11 +35,8 @@ urlpatterns = [
 
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/schema/swagger-ui/',
-         SpectacularSwaggerView.as_view(url_name='schema'),
+         login_required(SpectacularSwaggerView.as_view(url_name='schema')),
          name='swagger-ui'),
-    path('api/schema/redoc/',
-         SpectacularRedocView.as_view(url_name='schema'),
-         name='redoc'),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
