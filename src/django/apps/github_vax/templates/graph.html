@@ -50,12 +50,12 @@
                                       showarrow: false,
                                     })
         });
-        console.log(plotly_container)
         var layout = {
             autosize: true,
             grid: {rows: 1, columns: 2, pattern: 'independent'},
             annotations: layout_container
         };
-        console.log(layout)
         let TESTER = document.getElementById('tester');
         Plotly.newPlot(TESTER, plotly_container, layout, {responsive: true});
+    </script>
+</body>
